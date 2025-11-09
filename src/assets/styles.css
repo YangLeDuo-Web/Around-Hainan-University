@@ -1,0 +1,155 @@
+/* —— 品牌与基础 —— */
+.app-brand { font-weight: 800; letter-spacing: .5px; }
+.sticky-top-blur {
+  position: sticky; top: 0; z-index: 1030;
+  backdrop-filter: saturate(180%) blur(10px);
+  /* Fallback for older browsers (必须在前面) */
+  background-color: rgba(255, 255, 255, 0.7);
+  /* 现代浏览器 */
+  background-color: color-mix(in srgb, var(--bs-body-bg), transparent 30%);
+}
+
+/* —— 卡片图片比例 —— */
+.ratio-4x3 { aspect-ratio: 4/3; object-fit: cover; width: 100%; }
+
+/* —— 星级 —— */
+.star { font-size: .95rem; vertical-align: -2px; }
+
+/* —— 标签 —— */
+.tag-badge { font-weight: 500; }
+
+/* —— 骨架屏 —— */
+.skeleton { position: relative; overflow: hidden; background: #e9ecef; }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent);
+  animation: shimmer 1.2s infinite;
+}
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+
+/* —— 评论 —— */
+.comment-bubble { background: var(--bs-light); border-radius: .5rem; }
+.nowrap-ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* —— 图标按钮 —— */
+.icon-btn { border: none; background: transparent; padding: .25rem .5rem; }
+.icon-btn:focus-visible { outline: 2px solid var(--bs-primary); border-radius: .375rem; }
+
+/* (!!! 新增：导航栏登录按钮样式 !!!) */
+.btn-auth-nav {
+  background-color: #fff7f3;
+  border: 1px solid #ffede7;
+  color: #ff6633;
+  border-radius: 999px; /* 胶囊形状 */
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  transition: background-color .15s ease;
+}
+.btn-auth-nav:hover {
+  background-color: #fff2ee;
+  color: #ff6633;
+  border-color: #ffddd4;
+}
+.btn-auth-nav .bi {
+  vertical-align: -2px;
+}
+
+/* —— (新增) 首页图标宫格样式 —— */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 桌面 5 列 */
+  gap: 1rem .5rem; /* 行间距 1rem，列间距 0.5rem */
+}
+.icon-cat-card {
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.icon-cat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.5rem;
+  margin-bottom: .5rem;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.icon-cat-card:hover .icon-cat-icon {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+}
+.icon-cat-text {
+  font-size: .875rem;
+  color: var(--bs-body-color);
+  font-weight: 500;
+}
+
+/* 宫格小屏优化：改为 4 列 */
+@media (max-width: 768px) {
+  .icon-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* —— 小屏优化 —— */
+@media (max-width: 576px) {
+  .search-xl { display: none; }
+}
+
+/* 让搜索的输入+按钮无缝贴合 */
+.search-pill {
+  margin-top: 12px;
+  background: #fff;
+  border-radius: 999px;
+  border: 1px solid var(--bs-border-color);
+  max-width: 760px;
+  overflow: hidden; /* 关键：裁掉边角，形成“胶囊” */
+}
+.search-pill .input-group > .form-control { border: 0; box-shadow: none; }
+.search-pill .input-group > .btn { border: 0; border-left: 1px solid #ffd8a8; }
+
+/* 导航的小圆点标记 */
+.brand-dot { width: 28px; height: 28px; border-radius: 50%; background: #ffe3e3; color: #e03131; }
+
+/* —— 暗模式支持 —— */
+@media (prefers-color-scheme: dark) {
+  body {
+    --bs-body-bg: #121212; /* 暗模式背景 */
+    --bs-light: #1e1e1e;
+    --bs-border-color: #333;
+  }
+  .app-brand { color: #fff; }
+  .skeleton { background: #333; }
+  .search-pill { background: #1e1e1e; border-color: #444; }
+  .comment-bubble { background: #333; }
+  
+  /* (新增) 登录按钮暗模式 */
+  .btn-auth-nav {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #ff8a63;
+  }
+  .btn-auth-nav:hover {
+    background-color: #333;
+    border-color: #555;
+  }
+}
+
+/* —— 性能优化 —— */
+* {
+  will-change: unset; /* 只在需要时添加 will-change */
+}
+.icon-cat-card:hover .icon-cat-icon {
+  will-change: transform, box-shadow;
+}
