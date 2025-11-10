@@ -4,34 +4,30 @@
       <div class="container">
         <div class="hero-brand text-center">
           <div class="brand-logo mx-auto mb-2">
-            <svg viewBox="0 0 64 64" width="64" height="64" aria-label="点评Plus">
-              <defs>
-                <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#ff6b6b" />
-                  <stop offset="100%" stop-color="#ffa94d" />
-                </linearGradient>
-              </defs>
-              <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#g)"/>
-              <path d="M32 16c-6.1 0-11 4.9-11 11 0 8.1 11 21 11 21s11-12.9 11-21c0-6.1-4.9-11-11-11zm0 15.2a4.2 4.2 0 1 1 0-8.4 4.2 4.2 0 0 1 0 8.4z" fill="#fff"/>
-            </svg>
+            <img src="/public/hnu-surrounding-icon.png" alt="HNU Surrounding Icon" class="navbar-icon me-2">
           </div>
-          <div class="brand-title fw-bold">点评Plus</div>
+          <div class="brand-title fw-bold">HNU Surrounding</div>
           <div class="brand-sub text-secondary">发 现 好 去 处</div>
         </div>
 
-        <div class="search-pill shadow-sm mx-auto">
-          <div class="input-group">
-            <span class="input-group-text bg-transparent border-0 ps-3"><i class="bi bi-search"></i></span>
-            <input
-              v-model="homeQ"
-              class="form-control border-0"
-              placeholder="输入商户名、地点或菜品"
-              @keyup.enter="heroSearch"
-            />
-            <button class="btn btn-warning fw-semibold px-4" @click="heroSearch">搜索</button>
+        <div class="row justify-content-center">
+          <div class="col-12 col-md-10 col-lg-8">
+            <div class="search-bar d-flex align-items-center p-2 rounded-pill shadow-sm">
+              
+              
+              
+              <input
+                type="text"
+                class="form-control border-0 flex-grow-1 mx-2"
+                placeholder="输入商户名、地点或菜品"
+                v-model="homeQ"
+                @keyup.enter="heroSearch"
+              />
+              <button class="btn btn-search rounded-pill px-4 py-2" @click="heroSearch">搜索</button>
+            </div>
           </div>
         </div>
-      </div>
+        </div>
     </section>
 
     <section class="py-3 bg-light">
@@ -46,7 +42,6 @@
         </div>
       </div>
     </section>
-
     <section class="py-4">
       <div class="container">
         <h5 class="fw-semibold mb-3">相关推荐</h5>
@@ -78,23 +73,34 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMainStore } from '../stores/main';
-// 导入 ShopCard（虽然本页不用了，但为了安全先留着）
-import ShopCard from '../components/ShopCard.vue';
-// S: 导入新创建的 PostCard 组件
 import PostCard from '../components/PostCard.vue';
-// E: 导入
+import { showToast } from '../utils/ux'; // 导入 showToast
 
 const store = useMainStore();
 const router = useRouter();
 const homeQ = ref('');
+const isModeOn = ref(false); // 新增：用于模式切换 (不含AI逻辑)
 
 function heroSearch() {
+  if (!homeQ.value.trim()) {
+    showToast('请输入搜索内容');
+    return;
+  }
+  
+  // 你可以在这里根据 isModeOn.value 决定不同的搜索行为
+  if (isModeOn.value) {
+    console.log('模式ON 搜索:', homeQ.value);
+  } else {
+    console.log('模式OFF 搜索:', homeQ.value);
+  }
+
   router.push({
     path: '/search',
     query: { q: homeQ.value.trim() }
   });
 }
 
+// (以下是 heroCats 和 allPosts, 保持不变)
 const heroCats = ref([
   { text: '美食', icon: 'bi bi-egg-fried', color: 'text-warning' },
   { text: '景点周边游', icon: 'bi bi-compass', color: 'text-success' },
@@ -115,12 +121,104 @@ function clickHeroCat(c) {
   });
 }
 
-// S: "hotShops" 已被 "allPosts" 替换
 const allPosts = computed(() => store.posts);
-// E: 替换完毕
 </script>
 
 <style scoped>
+
+.navbar-icon {
+  height: 80px; /* 根据需要调整高度 */
+  width: auto; /* 保持图片比例 */
+}
+
+/* 品牌Logo (原有的) */
+.brand-logo {
+  width: 64px;
+  height: 64px;
+}
+.brand-logo svg {
+  width: 100%;
+  height: 100%;
+}
+.brand-title {
+  font-size: 1.5rem;
+}
+.brand-sub {
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+}
+
+/* --- 新搜索框样式 (来自图片) --- */
+.search-bar {
+  margin-top: 1.5rem; /* 与上方品牌保持距离 */
+  background-color: #fff;
+  border: 2px solid #ff7700;
+  box-shadow: 0 4px 12px rgba(255, 119, 0, 0.2);
+  min-height: 56px;
+  transition: all 0.3s ease;
+}
+.search-bar:focus-within {
+  border-color: #ff9933;
+  box-shadow: 0 6px 16px rgba(255, 119, 0, 0.3);
+}
+.mode-toggle {
+  white-space: nowrap;
+  color: #333;
+  padding-right: 0.5rem;
+}
+.form-check-input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 3.2em;
+  height: 1.8em;
+  background-color: #ccc;
+  border-radius: 1.2em;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.3s;
+}
+.form-check-input::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.4em;
+  height: 1.4em;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+.form-check-input:checked {
+  background-color: #ff7700;
+}
+.form-check-input:checked::before {
+  transform: translateX(1.4em);
+}
+.form-control {
+  font-size: 1rem;
+  padding: 0.5rem 0.75rem;
+  box-shadow: none !important;
+}
+.form-control::placeholder {
+  color: #aaa;
+}
+.btn-search {
+  background: linear-gradient(45deg, #ff8a00, #ff5500);
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  min-width: 80px;
+  transition: all 0.2s ease;
+}
+.btn-search:hover {
+  background: linear-gradient(45deg, #ff9933, #ff6600);
+  box-shadow: 0 2px 8px rgba(255, 85, 0, 0.4);
+}
+/* --- 新搜索框样式结束 --- */
+
+
+/* 分类标签 (原有的) */
 .cat-item {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -130,9 +228,8 @@ const allPosts = computed(() => store.posts);
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
 }
 
-/* S: 瀑布流 和 骨架屏 样式 */
+/* 瀑布流 (原有的) */
 .post-grid {
-  /* 基础2列 */
   column-count: 2;
   column-gap: 1rem;
 }
@@ -140,35 +237,15 @@ const allPosts = computed(() => store.posts);
   break-inside: avoid;
   margin-bottom: 1rem;
 }
+@media (min-width: 768px) { .post-grid { column-count: 3; } }
+@media (min-width: 992px) { .post-grid { column-count: 4; } }
 
-/* 在中等屏幕 (平板) 上变为 3 列 */
-@media (min-width: 768px) {
-  .post-grid {
-    column-count: 3;
-  }
-}
-/* 在大屏幕 (桌面) 上变为 4 列 */
-@media (min-width: 992px) {
-  .post-grid {
-    column-count: 4;
-  }
-}
-
-/* 骨架屏动画 */
-.skeleton {
-  background: #f0f0f0;
-  animation: pulse 1.5s infinite ease-in-out;
-}
-.skeleton-text {
-  height: 0.9rem;
-  margin-bottom: 0.5rem;
-  background: #f0f0f0;
-  border-radius: 4px;
-}
+/* 骨架屏 (原有的) */
+.skeleton { background: #f0f0f0; animation: pulse 1.5s infinite ease-in-out; }
+.skeleton-text { height: 0.9rem; margin-bottom: 0.5rem; background: #f0f0f0; border-radius: 4px; }
 @keyframes pulse {
   0% { background-color: #f0f0f0; }
   50% { background-color: #e0e0e0; }
   100% { background-color: #f0f0f0; }
 }
-/* E: 新增样式 */
 </style>
