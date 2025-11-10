@@ -202,29 +202,42 @@ function likeComment(cmt) {
 }
 </script>
 <style scoped>
-/* 确保这个样式块存在 */
+/* (你已有的 .comment-bubble 和 .icon-btn 样式) */
 .comment-bubble {
   background-color: #f7f7f7;
   border-radius: 8px;
   display: inline-block;
   max-width: 100%;
 }
-
-/* E: 把 ShopCard.vue 里的 .icon-btn 样式复制到这里 
-*/
 .icon-btn {
   background: none;
   border: none;
   padding: 0;
-  font-size: 0.9rem; /* 调整图标和文字大小 */
-  color: #6c757d; /* 默认灰色 */
+  font-size: 0.9rem;
+  color: #6c757d;
   cursor: pointer;
   transition: color 0.2s ease, transform 0.1s ease;
 }
 .icon-btn:hover {
-  color: #212529; /* 鼠标悬停时颜色变深 */
+  color: #212529;
   transform: translateY(-1px);
 }
-/* E: 粘贴到这里 */
+
+/* S: --- 把这段新样式加在这里 --- */
+.carousel-item img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  
+  /* S: --- 新增这一行 --- */
+  /* "center top" 的意思是：
+    水平居中 (center)，但垂直方向请从顶部 (top) 开始显示，把底部裁掉。
+    如果你想保留底部，请用 "center bottom"。
+  */
+  object-position: center top; 
+  /* E: --- 新增这一行 --- */
+
+  max-height: 500px;
+}
+/* E: --- 新样式结束 --- */
 
 </style>

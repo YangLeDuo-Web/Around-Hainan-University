@@ -12,10 +12,7 @@
 
         <div class="row justify-content-center">
           <div class="col-12 col-md-10 col-lg-8">
-            <div class="search-bar d-flex align-items-center p-2 rounded-pill shadow-sm">
-              
-              
-              
+            <div class="search-bar d-flex align-items-center p-1 rounded-pill shadow-sm">
               <input
                 type="text"
                 class="form-control border-0 flex-grow-1 mx-2"
@@ -42,6 +39,7 @@
         </div>
       </div>
     </section>
+
     <section class="py-4">
       <div class="container">
         <h5 class="fw-semibold mb-3">相关推荐</h5>
@@ -74,12 +72,12 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMainStore } from '../stores/main';
 import PostCard from '../components/PostCard.vue';
-import { showToast } from '../utils/ux'; // 导入 showToast
+import { showToast } from '../utils/ux';
 
 const store = useMainStore();
 const router = useRouter();
 const homeQ = ref('');
-const isModeOn = ref(false); // 新增：用于模式切换 (不含AI逻辑)
+// const isModeOn = ref(false); // S: 已删除 (冗余)
 
 function heroSearch() {
   if (!homeQ.value.trim()) {
@@ -87,12 +85,7 @@ function heroSearch() {
     return;
   }
   
-  // 你可以在这里根据 isModeOn.value 决定不同的搜索行为
-  if (isModeOn.value) {
-    console.log('模式ON 搜索:', homeQ.value);
-  } else {
-    console.log('模式OFF 搜索:', homeQ.value);
-  }
+  console.log('搜索:', homeQ.value);
 
   router.push({
     path: '/search',
@@ -100,7 +93,7 @@ function heroSearch() {
   });
 }
 
-// (以下是 heroCats 和 allPosts, 保持不变)
+// (heroCats 和 allPosts 保持不变)
 const heroCats = ref([
   { text: '美食', icon: 'bi bi-egg-fried', color: 'text-warning' },
   { text: '景点周边游', icon: 'bi bi-compass', color: 'text-success' },
@@ -126,12 +119,14 @@ const allPosts = computed(() => store.posts);
 
 <style scoped>
 
+/* (品牌样式 - 保持不变) */
 .navbar-icon {
-  height: 80px; /* 根据需要调整高度 */
-  width: auto; /* 保持图片比例 */
+  height: 80px; 
+  width: auto; 
 }
-
-/* 品牌Logo (原有的) */
+.hero-wrap {
+  padding-top: 2rem; /* <-- 增加顶部内边距 (你可以按喜好调整 2rem) */
+}
 .brand-logo {
   width: 64px;
   height: 64px;
@@ -148,57 +143,33 @@ const allPosts = computed(() => store.posts);
   letter-spacing: 0.2em;
 }
 
-/* --- 新搜索框样式 (来自图片) --- */
+/* --- 搜索框样式 --- */
 .search-bar {
-  margin-top: 1.5rem; /* 与上方品牌保持距离 */
+  margin-top: 1.0rem; 
   background-color: #fff;
   border: 2px solid #ff7700;
   box-shadow: 0 4px 12px rgba(255, 119, 0, 0.2);
-  min-height: 56px;
+  min-height: 40px;
   transition: all 0.3s ease;
+  border-radius: 50rem !important; /* <-- 确保搜索框是圆角 */
 }
 .search-bar:focus-within {
   border-color: #ff9933;
   box-shadow: 0 6px 16px rgba(255, 119, 0, 0.3);
 }
-.mode-toggle {
-  white-space: nowrap;
-  color: #333;
-  padding-right: 0.5rem;
-}
-.form-check-input {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 3.2em;
-  height: 1.8em;
-  background-color: #ccc;
-  border-radius: 1.2em;
-  position: relative;
-  cursor: pointer;
-  outline: none;
-  transition: background-color 0.3s;
-}
-.form-check-input::before {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 1.4em;
-  height: 1.4em;
-  background-color: #fff;
-  border-radius: 50%;
-  transition: transform 0.3s;
-}
-.form-check-input:checked {
-  background-color: #ff7700;
-}
-.form-check-input:checked::before {
-  transform: translateX(1.4em);
-}
+
+/* S: 删除了 .mode-toggle, .form-check-input 等 (冗余) */
+/* E: 删除了 .mode-toggle, .form-check-input 等 (冗余) */
+
 .form-control {
   font-size: 1rem;
   padding: 0.5rem 0.75rem;
   box-shadow: none !important;
+  background-color: transparent !important;
+}
+.form-control:focus {
+  box-shadow: none !important;
+  border-color: transparent !important;
 }
 .form-control::placeholder {
   color: #aaa;
@@ -215,10 +186,10 @@ const allPosts = computed(() => store.posts);
   background: linear-gradient(45deg, #ff9933, #ff6600);
   box-shadow: 0 2px 8px rgba(255, 85, 0, 0.4);
 }
-/* --- 新搜索框样式结束 --- */
+/* --- 搜索框样式结束 --- */
 
 
-/* 分类标签 (原有的) */
+/* (分类标签 - 保持不变) */
 .cat-item {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -228,7 +199,7 @@ const allPosts = computed(() => store.posts);
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
 }
 
-/* 瀑布流 (原有的) */
+/* (瀑布流 - 保持不变) */
 .post-grid {
   column-count: 2;
   column-gap: 1rem;
@@ -240,7 +211,7 @@ const allPosts = computed(() => store.posts);
 @media (min-width: 768px) { .post-grid { column-count: 3; } }
 @media (min-width: 992px) { .post-grid { column-count: 4; } }
 
-/* 骨架屏 (原有的) */
+/* (骨架屏 - 保持不变) */
 .skeleton { background: #f0f0f0; animation: pulse 1.5s infinite ease-in-out; }
 .skeleton-text { height: 0.9rem; margin-bottom: 0.5rem; background: #f0f0f0; border-radius: 4px; }
 @keyframes pulse {
