@@ -1,7 +1,79 @@
 <template>
   <div class="ocean-background">
     <!-- 优化的导航栏 -->
-    
+    <nav class="navbar navbar-expand-lg custom-navbar fixed-top">
+      <div class="container">
+        <router-link class="navbar-brand app-brand" to="/">
+          <span class="brand-icon d-inline-flex align-items-center justify-content-center me-2">
+            <i class="bi bi-water"></i>
+          </span>
+          海南大学
+        </router-link>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item">
+              <router-link class="nav-link" to="/">
+                <i class="bi bi-house me-1"></i>
+                首页
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/favorites">
+                <i class="bi bi-heart me-1"></i>
+                收藏
+              </router-link>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="merchantDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-shop me-1"></i>
+                商户服务
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="merchantDropdown">
+                <li><a class="dropdown-item" href="#"><i class="bi bi-building me-2"></i>商户中心</a></li>
+                <li><a class="dropdown-item" href="#"><i class="bi bi-briefcase me-2"></i>商户合作</a></li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-info-circle me-1"></i>
+                关于我们
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="aboutDropdown">
+                <li><a class="dropdown-item" href="#"><i class="bi bi-journal-text me-2"></i>平台规则</a></li>
+                <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-text me-2"></i>用户协议</a></li>
+                <li><a class="dropdown-item" href="#"><i class="bi bi-shield-lock me-2"></i>隐私政策</a></li>
+                <li><a class="dropdown-item" href="#"><i class="bi bi-headset me-2"></i>联系客服</a></li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" v-if="!isLoggedIn">
+              <router-link class="btn btn-auth-nav ms-2" :to="{ name: 'login' }">
+                <i class="bi bi-person"></i>
+                <span class="ms-1">登录/注册</span>
+              </router-link>
+            </li>
+
+            <li class="nav-item dropdown" v-if="isLoggedIn">
+              <a class="nav-link dropdown-toggle user-menu" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle me-1"></i>
+                欢迎，{{ username }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li><router-link class="dropdown-item" :to="{ name: 'dashboard' }"><i class="bi bi-speedometer2 me-2"></i>卖家面板</router-link></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><button class="dropdown-item" @click="logout"><i class="bi bi-box-arrow-right me-2"></i>登出</button></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
     <!-- 优化后的气泡元素 -->
     <div class="bubbles">
@@ -103,12 +175,12 @@
           </div>
           <div class="footer-text">
             <p class="copyright">
-              © 2023 海市大学. 保留所有权利. 
+              © 2023 海南大学. 保留所有权利. 
               <span class="divider">|</span>
               探索海南大学周边，寻找感兴趣的景点。
             </p>
             <p class="additional-info">
-              联系我们: info@haishicollege.edu | 电话: (123) 456-7890
+              联系我们: info@hainanuniversity.edu | 电话: (123) 456-7890
             </p>
           </div>
           <div class="footer-links">
@@ -123,7 +195,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useUserStore } from '../stores/user';
 import { useRouter } from 'vue-router';
 
@@ -135,6 +207,38 @@ const localLoading = ref(false);
 const localError = ref(null);
 const bubbles = ref([]);
 const seagulls = ref([]);
+
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+const username = computed(() => userStore.username);
+
+// 滚动效果处理
+let lastScrollTop = 0;
+let navbar = null;
+
+function handleScroll() {
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  
+  if (scrollTop > lastScrollTop && scrollTop > 100) {
+    // 向下滚动
+    navbar?.classList.add('navbar-hidden');
+  } else {
+    // 向上滚动
+    navbar?.classList.remove('navbar-hidden');
+  }
+  
+  // 添加滚动阴影效果
+  if (scrollTop > 10) {
+    navbar?.classList.add('navbar-scrolled');
+  } else {
+    navbar?.classList.remove('navbar-scrolled');
+  }
+  
+  lastScrollTop = scrollTop;
+}
+
+function logout() {
+  userStore.logout();
+}
 
 // 生成优化后的气泡
 function generateBubbles() {
@@ -167,17 +271,6 @@ function onInputBlur(event) {
   event.target.style.zIndex = '';
 }
 
-onMounted(() => {
-  generateBubbles();
-  generateSeagulls();
-  
-  window.addEventListener('resize', generateBubbles);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', generateBubbles);
-});
-
 function submit() {
   localLoading.value = true;
   localError.value = null;
@@ -205,6 +298,20 @@ function submit() {
 
   localLoading.value = false;
 }
+
+onMounted(() => {
+  navbar = document.querySelector('.custom-navbar');
+  generateBubbles();
+  generateSeagulls();
+  
+  window.addEventListener('scroll', handleScroll);
+  window.addEventListener('resize', generateBubbles);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll);
+  window.removeEventListener('resize', generateBubbles);
+});
 </script>
 
 <style>
@@ -229,7 +336,7 @@ function submit() {
   flex-direction: column;
 }
 
-/* 优化的导航栏样式 - 添加新颜色 */
+/* 固定导航栏基础样式 - 减小尺寸 */
 .custom-navbar {
   background: linear-gradient(135deg, 
     rgba(255, 255, 255, 0.98) 0%, 
@@ -237,32 +344,43 @@ function submit() {
     rgba(240, 245, 255, 0.98) 100%);
   backdrop-filter: blur(25px);
   border-bottom: 1px solid rgba(200, 220, 255, 0.6);
-  box-shadow: 0 10px 40px rgba(0, 80, 120, 0.15);
-  padding: 0.8rem 0;
-  position: sticky;
+  box-shadow: 0 2px 15px rgba(0, 80, 120, 0.1);
+  padding: 0.5rem 0;
+  position: fixed;
   top: 0;
-  z-index: 1000;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  min-height: 60px;
 }
 
-.custom-navbar.scrolled {
+/* 滚动时的阴影效果 */
+.custom-navbar.navbar-scrolled {
   background: linear-gradient(135deg, 
     rgba(255, 255, 255, 0.98) 0%, 
-    rgba(245, 248, 255, 0.96) 100%);
-  box-shadow: 0 15px 50px rgba(0, 80, 120, 0.2);
-  padding: 0.6rem 0;
+    rgba(245, 248, 255, 0.98) 100%);
+  box-shadow: 0 4px 20px rgba(0, 80, 120, 0.15);
+  padding: 0.4rem 0;
 }
 
-/* 品牌样式 */
+/* 隐藏导航栏的动画 */
+.custom-navbar.navbar-hidden {
+  transform: translateY(-100%);
+  box-shadow: none;
+}
+
+/* 品牌样式 - 减小尺寸 */
 .app-brand {
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   color: #006994 !important;
   text-decoration: none;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
+  padding: 0.2rem 0;
 }
 
 .app-brand:hover {
@@ -271,12 +389,12 @@ function submit() {
 }
 
 .brand-icon {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   background: linear-gradient(135deg, #006994, #00a8e8);
   border-radius: 50%;
   color: white;
-  font-size: 1.2rem;
+  font-size: 1rem;
   transition: all 0.3s ease;
 }
 
@@ -285,19 +403,20 @@ function submit() {
   background: linear-gradient(135deg, #00a8e8, #006994);
 }
 
-/* 导航链接样式 */
+/* 导航链接样式 - 减小尺寸 */
 .nav-link {
   font-family: 'Quicksand', sans-serif;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #2c3e50 !important;
-  padding: 0.7rem 1.2rem !important;
-  border-radius: 12px;
+  padding: 0.5rem 1rem !important;
+  border-radius: 10px;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
+  margin: 0 0.1rem;
 }
 
 .nav-link::before {
@@ -320,7 +439,7 @@ function submit() {
 .nav-link:hover {
   color: #006994 !important;
   background: rgba(0, 105, 148, 0.08);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .nav-link.active {
@@ -333,18 +452,19 @@ function submit() {
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(200, 220, 255, 0.6);
-  border-radius: 12px;
-  box-shadow: 0 15px 50px rgba(0, 80, 120, 0.15);
-  padding: 0.5rem;
-  margin-top: 0.5rem !important;
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 80, 120, 0.15);
+  padding: 0.4rem;
+  margin-top: 0.4rem !important;
+  border: none;
 }
 
 .dropdown-item {
   font-family: 'Quicksand', sans-serif;
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #2c3e50;
-  padding: 0.7rem 1rem;
+  padding: 0.6rem 0.9rem;
   border-radius: 8px;
   transition: all 0.3s ease;
   display: flex;
@@ -354,44 +474,46 @@ function submit() {
 .dropdown-item:hover {
   background: linear-gradient(135deg, #006994, #00a8e8);
   color: white;
-  transform: translateX(5px);
+  transform: translateX(3px);
 }
 
-/* 登录按钮样式 */
+/* 登录按钮样式 - 减小尺寸 */
 .btn-auth-nav {
   background: linear-gradient(135deg, #006994, #00a8e8);
   border: none;
-  border-radius: 12px;
-  padding: 0.7rem 1.5rem;
+  border-radius: 10px;
+  padding: 0.5rem 1.2rem;
   font-family: 'Quicksand', sans-serif;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: white;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  box-shadow: 0 4px 15px rgba(0, 105, 148, 0.3);
+  box-shadow: 0 3px 12px rgba(0, 105, 148, 0.3);
+  margin-left: 0.3rem;
 }
 
 .btn-auth-nav:hover {
   background: linear-gradient(135deg, #005a7a, #0088cc);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 105, 148, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(0, 105, 148, 0.4);
   color: white;
 }
 
 /* 用户菜单样式 */
 .user-menu {
   background: linear-gradient(135deg, rgba(0, 105, 148, 0.1), rgba(0, 168, 232, 0.05));
-  border-radius: 12px;
-  margin-left: 0.5rem;
+  border-radius: 10px;
+  margin-left: 0.3rem;
+  font-size: 0.9rem;
 }
 
 /* 导航栏切换按钮 */
 .navbar-toggler {
   border: none;
-  padding: 0.4rem;
-  border-radius: 8px;
+  padding: 0.3rem;
+  border-radius: 6px;
   transition: all 0.3s ease;
 }
 
@@ -401,31 +523,17 @@ function submit() {
 
 .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0, 105, 148, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  width: 20px;
+  height: 20px;
 }
 
-/* 滚动效果 */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.custom-navbar {
-  animation: fadeInDown 0.6s ease-out;
-}
-
-/* 主容器样式调整 - 进一步减少底部内边距 */
+/* 主容器样式调整 - 考虑固定导航栏高度 */
 .main-container {
   position: relative;
   z-index: 10;
-  padding-top: 25px;
-  padding-bottom: 10px; /* 进一步减少底部内边距 */
-  min-height: calc(100vh - 110px); /* 调整最小高度 */
+  padding-top: 80px; /* 增加顶部内边距以适应固定导航栏 */
+  padding-bottom: 10px;
+  min-height: calc(100vh - 110px);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -438,7 +546,7 @@ function submit() {
   display: flex;
   max-width: 850px;
   width: 90%;
-  margin: 0.8rem auto; /* 减少外边距 */
+  margin: 0.8rem auto;
   background: linear-gradient(135deg, 
     rgba(255, 255, 255, 0.18) 0%, 
     rgba(255, 255, 255, 0.08) 50%,
@@ -451,7 +559,7 @@ function submit() {
     0 0 0 1px rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.4);
-  min-height: 460px; /* 稍微减少高度 */
+  min-height: 460px;
   position: relative;
   z-index: 10;
   transition: all 0.4s ease;
@@ -527,7 +635,7 @@ function submit() {
   }
 }
 
-/* 图片区域样式 - 增大并移除覆盖层 */
+/* 图片区域样式 */
 .image-section {
   flex: 1.3;
   position: relative;
@@ -559,7 +667,7 @@ function submit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.8rem; /* 减少内边距 */
+  padding: 1.8rem;
   min-width: 350px;
   z-index: 100;
 }
@@ -580,7 +688,7 @@ function submit() {
   width: 100%;
   font-family: 'Quicksand', sans-serif;
   z-index: 1000;
-  padding: 1.6rem; /* 减少内边距 */
+  padding: 1.6rem;
 }
 
 .card:hover {
@@ -600,7 +708,7 @@ function submit() {
   font-family: 'Poppins', sans-serif;
   font-size: 2.2rem;
   letter-spacing: -0.5px;
-  margin-bottom: 1.2rem !important; /* 减少底部边距 */
+  margin-bottom: 1.2rem !important;
   background: linear-gradient(135deg, #006994, #00a8e8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -615,13 +723,74 @@ function submit() {
   font-weight: 500;
   color: #2c3e50;
   font-size: 0.95rem;
-  margin-bottom: 0.6rem; /* 减少底部边距 */
+  margin-bottom: 0.6rem;
   letter-spacing: 0.3px;
   display: block;
 }
 
 /* 输入框样式优化 */
+.form-control {
+  border: 1px solid rgba(0, 105, 148, 0.3);
+  border-radius: 12px;
+  padding: 11px 14px;
+  transition: all 0.3s;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.95);
+  color: #2c3e50;
+  width: 100%;
+  display: block;
+  position: relative;
+  z-index: 1001;
+  margin-bottom: 0.8rem;
+}
 
+.form-control::placeholder {
+  color: #95a5a6;
+  font-weight: 400;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.9rem;
+}
+
+.form-control:focus {
+  border-color: #006994;
+  box-shadow: 0 0 0 0.25rem rgba(0, 105, 148, 0.15);
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+/* 按钮样式优化 */
+.btn-primary {
+  background: linear-gradient(135deg, #006994, #0088cc);
+  border: none;
+  border-radius: 12px;
+  padding: 11px;
+  font-weight: 600;
+  transition: all 0.3s;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 1000;
+  margin-top: 0.6rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #005a7a, #0077b3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 105, 148, 0.5);
+}
+
+.btn-primary:disabled {
+  background: #8bb4c8;
+  transform: none;
+  box-shadow: none;
+  cursor: not-allowed;
+}
 
 /* 链接按钮样式 */
 .btn-link {
@@ -637,8 +806,8 @@ function submit() {
   cursor: pointer;
   position: relative;
   z-index: 1000;
-  padding: 7px; /* 减少内边距 */
-  margin-top: 0.6rem; /* 减少上边距 */
+  padding: 7px;
+  margin-top: 0.6rem;
 }
 
 .btn-link:hover {
@@ -655,11 +824,11 @@ function submit() {
   border-radius: 12px;
   font-family: 'Quicksand', sans-serif;
   font-weight: 500;
-  padding: 11px 16px; /* 减少内边距 */
+  padding: 11px 16px;
   backdrop-filter: blur(5px);
   position: relative;
   z-index: 1000;
-  margin-bottom: 1.2rem; /* 减少底部边距 */
+  margin-bottom: 1.2rem;
   font-size: 0.9rem;
 }
 
@@ -745,7 +914,7 @@ function submit() {
     rgba(255, 255, 255, 0.08) 100%);
   backdrop-filter: blur(15px);
   border-top: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.8rem 0; /* 进一步减少内边距 */
+  padding: 0.8rem 0;
   margin-top: auto;
   position: relative;
   z-index: 10;
@@ -756,19 +925,19 @@ function submit() {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 0.6rem; /* 进一步减少间距 */
+  gap: 0.6rem;
 }
 
 .footer-logo {
   display: flex;
   align-items: center;
-  margin-bottom: 0.2rem; /* 进一步减少底部边距 */
+  margin-bottom: 0.2rem;
 }
 
 .footer-brand {
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
-  font-size: 1.3rem; /* 进一步减小字体 */
+  font-size: 1.3rem;
   color: #006994;
   letter-spacing: 0.5px;
 }
@@ -776,13 +945,13 @@ function submit() {
 .footer-text {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem; /* 进一步减少间距 */
+  gap: 0.3rem;
 }
 
 .copyright {
   font-family: 'Quicksand', sans-serif;
   font-weight: 500;
-  font-size: 0.8rem; /* 进一步减小字体 */
+  font-size: 0.8rem;
   color: rgba(0, 105, 148, 0.9);
   margin: 0;
   line-height: 1.3;
@@ -796,7 +965,7 @@ function submit() {
 .additional-info {
   font-family: 'Quicksand', sans-serif;
   font-weight: 400;
-  font-size: 0.75rem; /* 进一步减小字体 */
+  font-size: 0.75rem;
   color: rgba(0, 105, 148, 0.7);
   margin: 0;
   line-height: 1.2;
@@ -804,14 +973,14 @@ function submit() {
 
 .footer-links {
   display: flex;
-  gap: 1rem; /* 进一步减少间距 */
-  margin-top: 0.2rem; /* 进一步减少上边距 */
+  gap: 1rem;
+  margin-top: 0.2rem;
 }
 
 .footer-link {
   font-family: 'Quicksand', sans-serif;
   font-weight: 500;
-  font-size: 0.75rem; /* 进一步减小字体 */
+  font-size: 0.75rem;
   color: rgba(0, 105, 148, 0.8);
   text-decoration: none;
   transition: all 0.3s ease;
@@ -839,36 +1008,65 @@ function submit() {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .custom-navbar {
+    padding: 0.4rem 0;
+    min-height: 55px;
+  }
+  
+  .nav-link {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.85rem;
+  }
+  
+  .app-brand {
+    font-size: 1.3rem;
+  }
+  
+  .brand-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+  
+  .btn-auth-nav {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .dropdown-menu {
+    margin-top: 0.3rem !important;
+  }
+  
   .main-container {
-    padding-top: 20px;
-    padding-bottom: 8px; /* 移动端进一步减少底部内边距 */
+    padding-top: 70px; /* 移动端调整顶部内边距 */
+    padding-bottom: 8px;
   }
   
   .login-composite-container {
     flex-direction: column;
     max-width: 95%;
     min-height: auto;
-    margin: 0.4rem auto; /* 移动端减少外边距 */
+    margin: 0.4rem auto;
     border-radius: 18px;
   }
   
   .image-section {
-    height: 200px; /* 移动端图片高度减少 */
+    height: 200px;
     flex: none;
   }
   
   .card-container {
     min-width: auto;
-    padding: 1.2rem; /* 移动端减少内边距 */
+    padding: 1.2rem;
   }
   
   .title {
     font-size: 1.8rem;
-    margin-bottom: 0.8rem !important; /* 移动端减少底部边距 */
+    margin-bottom: 0.8rem !important;
   }
   
   .card {
-    padding: 1rem; /* 移动端减少内边距 */
+    padding: 1rem;
     border-radius: 16px;
   }
   
@@ -876,39 +1074,40 @@ function submit() {
     display: none;
   }
   
-  .nav-link {
-    padding: 0.5rem 1rem !important;
-    font-size: 0.9rem;
-  }
-  
-  .app-brand {
-    font-size: 1.5rem;
-  }
-  
   .footer {
-    padding: 0.6rem 0; /* 移动端进一步减少内边距 */
+    padding: 0.6rem 0;
   }
   
   .footer-content {
-    gap: 0.4rem; /* 移动端进一步减少间距 */
+    gap: 0.4rem;
   }
   
   .footer-links {
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.6rem; /* 移动端进一步减少间距 */
+    gap: 0.6rem;
   }
   
   .copyright {
-    font-size: 0.75rem; /* 移动端进一步减小字体 */
+    font-size: 0.75rem;
   }
   
   .additional-info {
-    font-size: 0.7rem; /* 移动端进一步减小字体 */
+    font-size: 0.7rem;
   }
   
   .footer-brand {
-    font-size: 1.1rem; /* 移动端进一步减小字体 */
+    font-size: 1.1rem;
   }
+}
+
+/* 确保页面内容不被导航栏遮挡 */
+body {
+  padding-top: 65px !important;
+}
+
+/* 平滑滚动效果 */
+html {
+  scroll-behavior: smooth;
 }
 </style>
